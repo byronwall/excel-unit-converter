@@ -11,24 +11,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using ExcelDna.Integration;
 using ExcelDna.IntelliSense;
 namespace ExcelUnitConverter
 {
-	 
-	public class AddIn : IExcelAddIn
-	{
-		public void AutoOpen()
-		{
-			IntelliSenseServer.Register();
-			ExcelFunctions.InitData();
-		}
-
-		public void AutoClose()
-		{
-		}
-	}
-	
 	public static class ExcelFunctions
 	{
 		[ExcelFunction("Provides the conversion factor from one unit to another via multiplication")]
@@ -37,7 +24,8 @@ namespace ExcelUnitConverter
 			[ExcelArgument(Name = "UnitTo", Description = "is the desired unit, obtained by multiplying the base by the factor")] string unitToStr)
 		{			
 			try {
-				InitData();
+				Debug.Print("incoming unit from {0}", unitFromStr);
+				Debug.Print("incoming unit to {0}", unitToStr);
 				UnitConversion unitFrom = UnitConversion.CreateUnit(unitFromStr);
 				UnitConversion unitTo = UnitConversion.CreateUnit(unitToStr);
 				return unitFrom.factor / unitTo.factor;
@@ -128,7 +116,7 @@ namespace ExcelUnitConverter
 			//load from a file
 			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("baseUnits")) {
 				// read from stream to read the resource file
-				using (StreamReader sr = new StreamReader(stream)) {
+				using (StreamReader sr = new StreamReader(stream,Encoding.UTF8)) {
 					while (!sr.EndOfStream) {
 						var line = sr.ReadLine();
 						if (line == "") {
@@ -144,7 +132,7 @@ namespace ExcelUnitConverter
 			
 			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("allUnits")) {
 				// read from stream to read the resource file
-				using (StreamReader sr = new StreamReader(stream)) {
+				using (StreamReader sr = new StreamReader(stream,Encoding.UTF8)) {
 					while (!sr.EndOfStream) {
 						var line = sr.ReadLine();
 						if (line == "") {
