@@ -11,13 +11,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using ExcelDna.Integration;
+using ExcelDna.IntelliSense;
 namespace ExcelUnitConverter
 {
+	 
+	public class AddIn : IExcelAddIn
+	{
+		public void AutoOpen()
+		{
+			IntelliSenseServer.Register();
+			ExcelFunctions.InitData();
+		}
+
+		public void AutoClose()
+		{
+		}
+	}
+	
 	public static class ExcelFunctions
 	{
-		[ExcelDna.Integration.ExcelFunction]
-		public static double NewConvFactor(string unitFromStr, string unitToStr)
+		[ExcelFunction("Provides the conversion factor from one unit to another via multiplication")]
+		public static double ConvFactor(
+			[ExcelArgument(Name = "UnitFrom", Description = "is the base, current units")] string unitFromStr, 
+			[ExcelArgument(Name = "UnitTo", Description = "is the desired unit, obtained by multiplying the base by the factor")] string unitToStr)
 		{			
 			try {
 				InitData();
@@ -30,8 +47,9 @@ namespace ExcelUnitConverter
 			}
 		}
 
-		[ExcelDna.Integration.ExcelFunction]
-		public static string NewUnitType(string unitFromStr)
+		[ExcelFunction("Provides the SI unit type")]
+		public static string UnitType(
+			[ExcelArgument(Name = "Unit", Description = "is the current unit")]string unitFromStr)
 		{
 			try {
 				InitData();
@@ -43,8 +61,11 @@ namespace ExcelUnitConverter
 			}
 		}
 
-		[ExcelDna.Integration.ExcelFunction]
-		public static double NewConv(double value, string unitFrom, string unitTo)
+		[ExcelFunction("Converts a value from a given unit to a new unit")]
+		public static double Conv(
+			[ExcelArgument(Name = "Value", Description = "is the current value")] double value, 
+			[ExcelArgument(Name = "UnitFrom", Description = "is the current unit")] string unitFrom, 
+			[ExcelArgument(Name = "UnitTo", Description = "is the desired unit")] string unitTo)
 		{
 			try {
 				InitData();
@@ -95,7 +116,6 @@ namespace ExcelUnitConverter
 		}
 
 		public static bool isInit = false;
-		public static string workingDir;
 
 		public static void InitData()
 		{
@@ -104,30 +124,45 @@ namespace ExcelUnitConverter
 			}
 			isInit = true;
 			
-			workingDir = Directory.GetCurrentDirectory();
-			Debug.Print(workingDir);
-			
 			var baseUnits = new List<string>();
 			//load from a file
-			var lines = File.ReadAllLines(@"C:\Documents\TDA Programming\ExcelUnitConverter\ExcelUnitConverter\bin\Debug\baseUnits.txt");
-			foreach (var line in lines) {
-				baseUnits.Add(line);
+			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("baseUnits")) {
+				// read from stream to read the resource file
+				using (StreamReader sr = new StreamReader(stream)) {
+					while (!sr.EndOfStream) {
+						var line = sr.ReadLine();
+						if (line == "") {
+							continue;
+						}
+						baseUnits.Add(line);
+					}
+					UnitConversion.baseUnits = baseUnits;
+				}			
 			}
-			UnitConversion.baseUnits = baseUnits;
 			var allUnits = new Dictionary<string, UnitDefinition>();
 			//load from a file
-			var linesAll = File.ReadAllLines(@"C:\Documents\TDA Programming\ExcelUnitConverter\ExcelUnitConverter\bin\Debug\allUnits.txt");
-			foreach (var line in linesAll) {
-				var parts = line.Split('\t');
-				UnitDefinition uDef = new UnitDefinition();
-				uDef.fromUnit = parts[0];
-				var factorString = parts[1];
-				uDef.factor = (factorString == "") ? 0 : double.Parse(factorString);
-				var offsetString = parts[2];
-				uDef.offset = (offsetString == "") ? 0 : double.Parse(offsetString);
-				uDef.toUnit = parts[3];
-				allUnits.Add(uDef.fromUnit, uDef);
-				UnitConversion.allUnits = allUnits;
+			
+			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("allUnits")) {
+				// read from stream to read the resource file
+				using (StreamReader sr = new StreamReader(stream)) {
+					while (!sr.EndOfStream) {
+						var line = sr.ReadLine();
+						if (line == "") {
+							continue;
+						}			
+			
+						var parts = line.Split('\t');
+						UnitDefinition uDef = new UnitDefinition();
+						uDef.fromUnit = parts[0];
+						var factorString = parts[1];
+						uDef.factor = (factorString == "") ? 0 : double.Parse(factorString);
+						var offsetString = parts[2];
+						uDef.offset = (offsetString == "") ? 0 : double.Parse(offsetString);
+						uDef.toUnit = parts[3];
+						allUnits.Add(uDef.fromUnit, uDef);
+						UnitConversion.allUnits = allUnits;
+					}
+				}
 			}
 		}
 	}

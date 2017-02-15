@@ -40,6 +40,12 @@
     <Reference Include="ExcelDna.Integration">
       <HintPath>..\packages\ExcelDna.Integration.0.33.9\lib\ExcelDna.Integration.dll</HintPath>
     </Reference>
+    <Reference Include="ExcelDna.IntelliSense">
+      <HintPath>..\packages\ExcelDna.IntelliSense.1.0.0\lib\net40\ExcelDna.IntelliSense.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.UIAutomationClient">
+      <HintPath>..\packages\UIAComWrapper.1.1.0.14\lib\net40\Interop.UIAutomationClient.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -51,6 +57,9 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAComWrapper">
+      <HintPath>..\packages\UIAComWrapper.1.1.0.14\lib\net40\UIAComWrapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelFunctions.cs" />
@@ -59,6 +68,12 @@
     <Compile Include="UnitDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="allUnits.txt">
+      <LogicalName>allUnits</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="baseUnits.txt">
+      <LogicalName>baseUnits</LogicalName>
+    </EmbeddedResource>
     <None Include="ExcelUnitConverter-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
