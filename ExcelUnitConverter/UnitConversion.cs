@@ -24,11 +24,22 @@ namespace ExcelUnitConverter
 		public static List<string> baseUnits;
 
 		public static Dictionary<string, UnitDefinition> allUnits;
+		
+		private static Dictionary<string, UnitConversion> _parsedUnitsCache = new Dictionary<string, UnitConversion>();
 
 		public static UnitConversion CreateUnit(string unitLabel)
 		{
+			//check the cache for a parsed result
+			if (_parsedUnitsCache.ContainsKey(unitLabel)) {
+				return _parsedUnitsCache[unitLabel];
+			}
+			
 			var unit = new UnitConversion();
 			unit.Parse(unitLabel);
+			
+			//add to the cache
+			_parsedUnitsCache.Add(unitLabel, unit);
+			
 			return unit;
 		}
 
@@ -46,8 +57,7 @@ namespace ExcelUnitConverter
 					}
 					string token = vUnit.Substring(lastStop, chrIndex - lastStop);
 					if (token == "1") {
-					}
-					else {
+					} else {
 						var tokenParsed = ParseToken(token);
 						DictAddOrCreate(partsOrig, tokenParsed.Item1, tokenParsed.Item2 * divMultFactor);
 					}
@@ -55,8 +65,7 @@ namespace ExcelUnitConverter
 					//flip to the bottom, set last stop
 					if (charac == '/') {
 						divMultFactor = -1;
-					}
-					else {
+					} else {
 						divMultFactor = 1;
 					}
 				}
@@ -65,8 +74,7 @@ namespace ExcelUnitConverter
 			foreach (var origUnit in partsOrig.Keys) {
 				if (IsSiUnit(origUnit)) {
 					DictAddOrCreate(this.partsBase, origUnit, partsOrig[origUnit]);
-				}
-				else {
+				} else {
 					this.factor = this.factor * Math.Pow(GetFactorToSis(origUnit), partsOrig[origUnit]);
 				}
 			}
@@ -86,8 +94,7 @@ namespace ExcelUnitConverter
 			if (tokenParts.Length > 1) {
 				unitName = tokenParts[0];
 				unitExponent = int.Parse(tokenParts[1]);
-			}
-			else {
+			} else {
 				//do a check for a number
 				var strPattern = "(^[a-zA-Z]+)([0-9]+$)";
 				var strInput = tokenParts[0];
@@ -97,8 +104,7 @@ namespace ExcelUnitConverter
 					//have a match make the split
 					unitName = regMatch.Groups[1].Value;
 					unitExponent = int.Parse(regMatch.Groups[2].Value);
-				}
-				else {
+				} else {
 					//no match
 					unitName = tokenParts[0];
 					unitExponent = 1;
@@ -136,8 +142,7 @@ namespace ExcelUnitConverter
 		{
 			if (dict.ContainsKey(key)) {
 				dict[key] = dict[key] + value;
-			}
-			else {
+			} else {
 				dict[key] = value;
 			}
 		}
@@ -174,8 +179,7 @@ namespace ExcelUnitConverter
 				foreach (var baseUnit in this.partsBase.Keys) {
 					if (this.partsBase[baseUnit] > 0) {
 						colMult.Add(GetPretty(this.partsBase, baseUnit));
-					}
-					else {
+					} else {
 						colDiv.Add(GetPretty(this.partsBase, baseUnit));
 					}
 				}
@@ -198,8 +202,7 @@ namespace ExcelUnitConverter
 			int exponent = dict[Unit];
 			if (Math.Abs(exponent) != 1) {
 				return Unit + "^" + Math.Abs(dict[Unit]);
-			}
-			else {
+			} else {
 				return Unit;
 			}
 		}
