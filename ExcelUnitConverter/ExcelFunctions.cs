@@ -13,22 +13,38 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using ExcelDna.Integration;
-using ExcelDna.IntelliSense;
 namespace ExcelUnitConverter
 {
 	public static class ExcelFunctions
 	{
+		
+		private static Dictionary<Tuple<string, string>, double> _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();
+		
 		[ExcelFunction("Provides the conversion factor from one unit to another via multiplication")]
 		public static double ConvFactor(
 			[ExcelArgument(Name = "UnitFrom", Description = "is the base, current units")] string unitFromStr, 
 			[ExcelArgument(Name = "UnitTo", Description = "is the desired unit, obtained by multiplying the base by the factor")] string unitToStr)
 		{			
 			try {
-				Debug.Print("incoming unit from {0}", unitFromStr);
-				Debug.Print("incoming unit to {0}", unitToStr);
+				//check the cache based on the string inputs
+				var key = Tuple.Create(unitFromStr, unitToStr);
+				if (_cachedConversionFactors.ContainsKey(key)) {
+					return _cachedConversionFactors[key];
+				}
+				
 				UnitConversion unitFrom = UnitConversion.CreateUnit(unitFromStr);
 				UnitConversion unitTo = UnitConversion.CreateUnit(unitToStr);
-				return unitFrom.factor / unitTo.factor;
+				
+				if (!unitFrom.AreSameUnits(unitTo)) {
+					throw new Exception(string.Format("not converting same unit types {0} to {1}", unitFromStr, unitToStr));
+				}
+				
+				var convFactor = unitFrom.factor / unitTo.factor;
+				
+				//add the factor to the cache
+				_cachedConversionFactors.Add(key, convFactor);
+				
+				return convFactor;
 			} catch (Exception e) {
 				Debug.Print(e.ToString());
 				throw;
@@ -40,9 +56,9 @@ namespace ExcelUnitConverter
 			[ExcelArgument(Name = "Unit", Description = "is the current unit")]string unitFromStr)
 		{
 			try {
-				InitData();
-				UnitConversion unitFrom = UnitConversion.CreateUnit(unitFromStr);
-				return unitFrom.UnitType;
+				//gets the unit and returns the SI type
+				return UnitConversion.CreateUnit(unitFromStr).UnitType;
+				
 			} catch (Exception e) {
 				Debug.Print(e.ToString());
 				throw;
@@ -55,48 +71,39 @@ namespace ExcelUnitConverter
 			[ExcelArgument(Name = "UnitFrom", Description = "is the current unit")] string unitFrom, 
 			[ExcelArgument(Name = "UnitTo", Description = "is the desired unit")] string unitTo)
 		{
-			try {
-				InitData();
-				//check if the unit is defined in base units -> done
-				while (UnitConversion.allUnits.ContainsKey(unitFrom)) {
+			try {				
+				//not in the cache, check if the start is a bare unit and has an offset
+				string scaleUnitFrom = unitFrom;
+				if (UnitConversion.allUnits.ContainsKey(unitFrom)) {
 					var unitFromDef = UnitConversion.allUnits[unitFrom];
 					if (unitFromDef.offset != 0) {
 						//need to process the conversion
 						value = unitFromDef.ConvertForward(value);
-						unitFrom = unitFromDef.toUnit;
-					} else {
-						break;
+						scaleUnitFrom = unitFromDef.toUnit;
 					}
 				}
-				//at this point, unitFrom is in a unit that does not have an offset... convert to SI using factors
-				var fromUnit = UnitConversion.CreateUnit(unitFrom);
-				value = value * fromUnit.factor;
-				var finalUnitTo = unitTo;
-				//determine last output that is non offset    
-				var backChain = new List<UnitDefinition>();
-				while (UnitConversion.allUnits.ContainsKey(unitTo)) {
+				
+				string scaleUnitTo = unitTo;
+				UnitDefinition finalToConv = null;
+				if (UnitConversion.allUnits.ContainsKey(unitTo)) {
 					var unitToDef = UnitConversion.allUnits[unitTo];
 					if (unitToDef.offset != 0) {
 						//need to process the conversion
-						unitTo = unitToDef.toUnit;
-						backChain.Add(unitToDef);
-					} else {
-						break;
+						scaleUnitTo = unitToDef.toUnit;
+						finalToConv = unitToDef;
 					}
 				}
-				//unitTo now contains the final unit to get to that is not offset... get the factor to there
-				var toUnit = UnitConversion.CreateUnit(unitTo);
-				if (!toUnit.AreSameUnits(fromUnit)) {
-					throw new Exception("not the same unit");
+				
+				//have the scale units, get the factor for those				
+				value *= ConvFactor(scaleUnitFrom, scaleUnitTo);
+				
+				//if a final conversion is needed, process that now
+				if (finalToConv != null) {
+					value = finalToConv.ConvertBackward(value);
 				}
-				value = value / toUnit.factor;
-				//process the back chain to get to the final answer
-				for (int unitIndex = backChain.Count - 1; unitIndex >= 0; unitIndex--) {
-					var convFrom = backChain[unitIndex];
-					value = convFrom.ConvertBackward(value);
-				}
-				//on the back end, check do the same checks in reverse
+				
 				return value;
+				
 			} catch (Exception e) {
 				Debug.Print(e.ToString());
 				throw;
@@ -116,7 +123,7 @@ namespace ExcelUnitConverter
 			//load from a file
 			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("baseUnits")) {
 				// read from stream to read the resource file
-				using (StreamReader sr = new StreamReader(stream,Encoding.UTF8)) {
+				using (StreamReader sr = new StreamReader(stream, Encoding.UTF8)) {
 					while (!sr.EndOfStream) {
 						var line = sr.ReadLine();
 						if (line == "") {
@@ -132,7 +139,7 @@ namespace ExcelUnitConverter
 			
 			using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("allUnits")) {
 				// read from stream to read the resource file
-				using (StreamReader sr = new StreamReader(stream,Encoding.UTF8)) {
+				using (StreamReader sr = new StreamReader(stream, Encoding.UTF8)) {
 					while (!sr.EndOfStream) {
 						var line = sr.ReadLine();
 						if (line == "") {
