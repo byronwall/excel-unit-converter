@@ -20,7 +20,7 @@ namespace ExcelUnitConverter
     public static class ExcelFunctions
     {
 
-        
+
 
         [ExcelFunction("Provides the conversion factor from one unit to another via multiplication")]
         public static double ConvFactor(

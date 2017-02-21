@@ -15,18 +15,18 @@ using ExcelDna.Integration;
 using ExcelDna.IntelliSense;
 namespace ExcelUnitConverter
 {
-	public class AddIn : IExcelAddIn
-	{
-		public void AutoOpen()
-		{
-			IntelliSenseServer.Register();
-			ExcelFunctions.InitData();
-		}
+    public class AddIn : IExcelAddIn
+    {
+        public void AutoOpen()
+        {
+            IntelliSenseServer.Register();
+            ExcelFunctions.InitData();
+        }
 
-		public void AutoClose()
-		{
-		}
-	}
+        public void AutoClose()
+        {
+        }
+    }
 }
 
 
