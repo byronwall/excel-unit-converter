@@ -25,6 +25,7 @@ namespace ExcelUnitConverter
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+
             RefreshDataGrid();
             AreInputsValid();
         }
@@ -128,13 +129,14 @@ namespace ExcelUnitConverter
 
         private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            //TODO need to do some sanity checks here
+            //TODO need to do some sanity checks here... do these in property setters
 
             //TODO need to push the change back into the database
 
             //TODO need to support deleting a unit def
             UnitConversion.InvalidateCaches();
 
+            //force the spreadsheet to recalc since a change happened
             Microsoft.Office.Interop.Excel.Application app = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
             app.CalculateFullRebuild();
         }
