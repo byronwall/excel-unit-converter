@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [0.1.0] - 2017-02-21
+This is the initial public release of the add-in.
+
 ### Changes
  - Move unit database to SQLite database and embed as a resource.  This removes the .txt files which were previously embedded.
 
