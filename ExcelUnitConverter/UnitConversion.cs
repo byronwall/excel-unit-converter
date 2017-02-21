@@ -6,6 +6,7 @@
  * 
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +27,15 @@ namespace ExcelUnitConverter
 		public static Dictionary<string, UnitDefinition> allUnits;
 		
 		private static Dictionary<string, UnitConversion> _parsedUnitsCache = new Dictionary<string, UnitConversion>();
+        public static Dictionary<Tuple<string, string>, double> _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();
+
+        public static SQLiteConnection unitDatabase;
+
+        public static void InvalidateCaches()
+        {
+            _parsedUnitsCache = new Dictionary<string, UnitConversion>();
+            _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();
+        }
 
 		public static UnitConversion CreateUnit(string unitLabel)
 		{
@@ -79,6 +89,20 @@ namespace ExcelUnitConverter
 				}
 			}
 		}
+
+        public static bool CanParse(string unitName)
+        {
+            var unit = new UnitConversion();
+            try
+            {
+                unit.Parse(unitName);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 		private bool IsSiUnit(string vUnit)
 		{
