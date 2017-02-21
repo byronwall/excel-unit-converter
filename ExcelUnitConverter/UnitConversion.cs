@@ -22,9 +22,8 @@ namespace ExcelUnitConverter
 
         public Dictionary<string, int> partsBase = new Dictionary<string, int>();
 
-        public static List<string> baseUnits;
-
-        public static Dictionary<string, UnitDefinition> allUnits;
+        public static List<string> baseUnits = new List<string>();
+        public static Dictionary<string, UnitDefinition> allUnits = new Dictionary<string, UnitDefinition>();
 
         private static Dictionary<string, UnitConversion> _parsedUnitsCache = new Dictionary<string, UnitConversion>();
         public static Dictionary<Tuple<string, string>, double> _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();

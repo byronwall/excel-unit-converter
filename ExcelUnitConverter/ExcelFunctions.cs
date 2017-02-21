@@ -19,9 +19,6 @@ namespace ExcelUnitConverter
 {
     public static class ExcelFunctions
     {
-
-
-
         [ExcelFunction("Provides the conversion factor from one unit to another via multiplication")]
         public static double ConvFactor(
             [ExcelArgument(Name = "UnitFrom", Description = "is the base, current units")] string unitFromStr,
@@ -161,18 +158,18 @@ namespace ExcelUnitConverter
             //database exists, load the units
             var db = new SQLiteConnection(dbPath);
 
-            UnitConversion.allUnits = new Dictionary<string, UnitDefinition>();
-            var allUnits = db.Table<UnitDefinition>();
-            foreach (var unit in allUnits)
-            {
-                UnitConversion.allUnits.Add(unit.fromUnit, unit);
-            }
-
             UnitConversion.baseUnits = new List<string>();
             var baseUnits = db.Table<BaseUnitDef>();
             foreach (var baseUnit in baseUnits)
             {
                 UnitConversion.baseUnits.Add(baseUnit.Name);
+            }
+
+            UnitConversion.allUnits = new Dictionary<string, UnitDefinition>();
+            var allUnits = db.Table<UnitDefinition>();
+            foreach (var unit in allUnits)
+            {
+                UnitConversion.allUnits.Add(unit.fromUnit, unit);
             }
 
             UnitConversion.unitDatabase = db;

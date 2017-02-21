@@ -131,9 +131,8 @@ namespace ExcelUnitConverter
         {
             //TODO need to do some sanity checks here... do these in property setters
 
-            //TODO need to push the change back into the database
+            UnitConversion.unitDatabase.Update(dataGridView1.Rows[e.RowIndex].DataBoundItem);
 
-            //TODO need to support deleting a unit def
             UnitConversion.InvalidateCaches();
 
             //force the spreadsheet to recalc since a change happened

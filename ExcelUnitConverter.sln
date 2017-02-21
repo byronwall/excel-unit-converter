@@ -1,8 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-# SharpDevelop 5.1
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelUnitConverter", "ExcelUnitConverter\ExcelUnitConverter.csproj", "{F0C8EB20-F153-4158-BD76-980CB2948AAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C079E6CA-279E-4FE1-812A-2C43E1BDDCDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,5 +17,8 @@ Global
 		{F0C8EB20-F153-4158-BD76-980CB2948AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0C8EB20-F153-4158-BD76-980CB2948AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0C8EB20-F153-4158-BD76-980CB2948AAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
