@@ -19,7 +19,8 @@ namespace ExcelUnitConverter
     {
         public void AutoOpen()
         {
-            IntelliSenseServer.Register();
+            //This is disbaled until resolved in Excel 2016
+            //IntelliSenseServer.Register();
             ExcelFunctions.InitData();
         }
 
