@@ -2,6 +2,7 @@
 
 ### Added
  - Created new function ConvToSI that will convert a value to its SI unit and output that unit if done as an array formula
+ - Add support for a preferred unit output based on the dimension
 
 ## [0.1.0] - 2017-02-21
 This is the initial public release of the add-in.

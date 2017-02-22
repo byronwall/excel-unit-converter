@@ -55,6 +55,13 @@ namespace ExcelUnitConverter
                 UnitConversion.allUnits.Add(unit.fromUnit, unit);
             }
 
+            UnitConversion.preferredDimensions = new Dictionary<string, PreferredUnit>();
+            var allDimensions = db.Table<PreferredUnit>();
+            foreach (var dimen in allDimensions)
+            {
+                UnitConversion.preferredDimensions.Add(dimen.Dimension, dimen);
+            }
+
             UnitConversion.unitDatabase = db;
         }
     }

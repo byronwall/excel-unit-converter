@@ -11,7 +11,8 @@ namespace ExcelUnitConverter
         {
             InitializeComponent();
 
-            RefreshDataGrid();
+            RefreshDataGridUnits();
+            RefreshDataGridDimensions();
             AreInputsValid();
         }
 
@@ -44,7 +45,7 @@ namespace ExcelUnitConverter
             UnitConversion.unitDatabase.Insert(uDef);
 
             //refresh the datagridview down below
-            RefreshDataGrid();
+            RefreshDataGridUnits();
         }
 
         private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -100,9 +101,14 @@ namespace ExcelUnitConverter
             return isValid;
         }
 
-        private void RefreshDataGrid()
+        private void RefreshDataGridUnits()
         {
             dataGridView1.DataSource = UnitConversion.allUnits.Values.ToList();
+        }
+
+        private void RefreshDataGridDimensions()
+        {
+            dataGridView1.DataSource = UnitConversion.preferredDimensions.Values.ToList();
         }
 
         private void txtFactor_TextChanged(object sender, EventArgs e)
@@ -123,6 +129,31 @@ namespace ExcelUnitConverter
         private void txtToUnit_TextChanged(object sender, EventArgs e)
         {
             isToValid();
+        }
+
+        private void btnDimAdd_Click(object sender, EventArgs e)
+        {
+            //TODO verify that the unit is valid
+            var isValid = true;
+
+            if (!isValid)
+            {
+                return;
+            }
+
+            //create the unit def
+            var uPref = new PreferredUnit();
+            uPref.Dimension = txtDimension.Text;
+            uPref.Unit = txtDesiredUnit.Text;
+
+            //looks good, add the unit to the database
+            //add the unit to the working lists
+
+            UnitConversion.preferredDimensions.Add(uPref.Dimension, uPref);
+            UnitConversion.unitDatabase.Insert(uPref);
+
+            //refresh the datagridview down below
+            RefreshDataGridUnits();
         }
     }
 }

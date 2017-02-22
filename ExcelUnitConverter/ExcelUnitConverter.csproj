@@ -129,6 +129,7 @@
     <Compile Include="ExcelCommands.cs" />
     <Compile Include="ExcelFunctions.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="PreferredUnit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitConversion.cs" />
     <Compile Include="UnitDefinition.cs" />

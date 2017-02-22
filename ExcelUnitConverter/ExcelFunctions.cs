@@ -46,7 +46,7 @@ namespace ExcelUnitConverter
         {
             try
             {
-                return UnitConversion.ConvertValue(ref value, unitFrom, unitTo);
+                return UnitConversion.ConvertValue(value, unitFrom, unitTo);
             }
             catch (Exception e)
             {
@@ -63,12 +63,37 @@ namespace ExcelUnitConverter
             try
             {
                 var unitToSi = UnitConversion.CreateUnit(unitFrom).UnitType;
-                var newValue = UnitConversion.ConvertValue(ref value, unitFrom, unitToSi);
+                var newValue = UnitConversion.ConvertValue(value, unitFrom, unitToSi);
 
                 //the object array allows for the output to fill an array formula
-                object[] result = new object[] { newValue, unitToSi };
 
-                return result;
+                return new object[] { newValue, unitToSi };
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                throw;
+            }
+        }
+
+        [ExcelFunction("Converts a value from a given unit to the preferred version if defined.  Will return unit as an array formula")]
+        public static object ConvToPref(
+            [ExcelArgument(Name = "Value", Description = "is the current value")] double value,
+            [ExcelArgument(Name = "UnitFrom", Description = "is the current unit")] string unitFrom)
+        {
+            try
+            {
+                var unitToSi = UnitConversion.CreateUnit(unitFrom).UnitType;
+                if (UnitConversion.preferredDimensions.ContainsKey(unitToSi))
+                {
+                    unitToSi = UnitConversion.preferredDimensions[unitToSi].Unit;
+                }
+                
+                var newValue = UnitConversion.ConvertValue(value, unitFrom, unitToSi);
+
+                //the object array allows for the output to fill an array formula
+
+                return new object[] { newValue, unitToSi };
             }
             catch (Exception e)
             {

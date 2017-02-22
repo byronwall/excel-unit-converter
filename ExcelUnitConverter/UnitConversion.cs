@@ -9,6 +9,8 @@ namespace ExcelUnitConverter
     {
         public static Dictionary<Tuple<string, string>, double> _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();
         public static Dictionary<string, UnitDefinition> allUnits = new Dictionary<string, UnitDefinition>();
+        public static Dictionary<string, PreferredUnit> preferredDimensions= new Dictionary<string, PreferredUnit>();
+
         public static List<string> baseUnits = new List<string>();
         public static SQLiteConnection unitDatabase;
         public double factor = 1;
@@ -66,7 +68,7 @@ namespace ExcelUnitConverter
             }
         }
 
-        public static double ConvertValue(ref double value, string unitFrom, string unitTo)
+        public static double ConvertValue(double value, string unitFrom, string unitTo)
         {
             //not in the cache, check if the start is a bare unit and has an offset
             string scaleUnitFrom = unitFrom;
