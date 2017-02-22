@@ -1,38 +1,23 @@
-﻿/*
- * Created by SharpDevelop.
- * User: bwall
- * Date: 2/20/2017
- * Time: 11:33 AM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using ExcelDna.Integration;
+﻿using ExcelDna.Integration;
 using System;
-using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace ExcelUnitConverter
 {
-    /// <summary>
-    /// Description of UnitsViewer.
-    /// </summary>
     public partial class UnitsViewer : Form
     {
         public UnitsViewer()
         {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
             InitializeComponent();
 
             RefreshDataGrid();
             AreInputsValid();
         }
 
-        private void RefreshDataGrid()
+        private bool AreInputsValid()
         {
-            dataGridView1.DataSource = UnitConversion.allUnits.Values.ToList();
+            return isFromValid() && isToValid() && isFactorValid() && isOffsetValid();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -62,9 +47,27 @@ namespace ExcelUnitConverter
             RefreshDataGrid();
         }
 
-        private bool AreInputsValid()
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            return isFromValid() && isToValid() && isFactorValid() && isOffsetValid();
+            //TODO need to do some sanity checks here... do these in property setters
+
+            UnitConversion.unitDatabase.Update(dataGridView1.Rows[e.RowIndex].DataBoundItem);
+
+            UnitConversion.InvalidateCaches();
+
+            //force the spreadsheet to recalc since a change happened
+            Microsoft.Office.Interop.Excel.Application app = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
+            app.CalculateFullRebuild();
+        }
+
+        private bool isFactorValid()
+        {
+            var factor = txtFactor.Text;
+            double result;
+
+            var isValid = double.TryParse(factor, out result);
+            lblFactorValid.Text = (isValid) ? "valid" : "enter a number";
+            return isValid;
         }
 
         private bool isFromValid()
@@ -78,25 +81,6 @@ namespace ExcelUnitConverter
             return isValid;
         }
 
-        private bool isToValid()
-        {
-            var toUnit = txtToUnit.Text;
-            var isValid = UnitConversion.CanParse(toUnit);
-            lblToValid.Text = (isValid) ? "valid" : "to unit not valid";
-
-            return isValid;
-        }
-
-        private bool isFactorValid()
-        {
-            var factor = txtFactor.Text;
-            double result;
-
-            var isValid = double.TryParse(factor, out result);
-            lblFactorValid.Text = (isValid) ? "valid" : "enter a number";
-            return isValid;
-        }
-
         private bool isOffsetValid()
         {
             var offset = txtOffset.Text;
@@ -107,14 +91,18 @@ namespace ExcelUnitConverter
             return isValid;
         }
 
-        private void txtFromUnit_TextChanged(object sender, EventArgs e)
+        private bool isToValid()
         {
-            isFromValid();
+            var toUnit = txtToUnit.Text;
+            var isValid = UnitConversion.CanParse(toUnit);
+            lblToValid.Text = (isValid) ? "valid" : "to unit not valid";
+
+            return isValid;
         }
 
-        private void txtToUnit_TextChanged(object sender, EventArgs e)
+        private void RefreshDataGrid()
         {
-            isToValid();
+            dataGridView1.DataSource = UnitConversion.allUnits.Values.ToList();
         }
 
         private void txtFactor_TextChanged(object sender, EventArgs e)
@@ -122,22 +110,19 @@ namespace ExcelUnitConverter
             isFactorValid();
         }
 
+        private void txtFromUnit_TextChanged(object sender, EventArgs e)
+        {
+            isFromValid();
+        }
+
         private void txtOffset_TextChanged(object sender, EventArgs e)
         {
             isOffsetValid();
         }
 
-        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        private void txtToUnit_TextChanged(object sender, EventArgs e)
         {
-            //TODO need to do some sanity checks here... do these in property setters
-
-            UnitConversion.unitDatabase.Update(dataGridView1.Rows[e.RowIndex].DataBoundItem);
-
-            UnitConversion.InvalidateCaches();
-
-            //force the spreadsheet to recalc since a change happened
-            Microsoft.Office.Interop.Excel.Application app = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
-            app.CalculateFullRebuild();
+            isToValid();
         }
     }
 }
