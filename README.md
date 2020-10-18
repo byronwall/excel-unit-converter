@@ -8,6 +8,12 @@ This add-in was created at a time when I was doing a significant amount of engin
 
 ## Screenshots
 
+Example of formula input and result
+
+![Input](/ExcelUnitConverter/docs/images/usage.png)
+
+![Output](/ExcelUnitConverter/docs/images/usage2.png)
+
 Form to display and edit current unit database.
 
 ![Unit form](/ExcelUnitConverter/docs/images/03-units.png)
