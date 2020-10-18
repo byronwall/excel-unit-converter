@@ -21,5 +21,21 @@ namespace ExcelUnitConverter
                 throw;
             }
         }
+
+        [ExcelCommand(MenuName = "Units", MenuText = "Show Settings Form")]
+        public static void ShowSettingsForm()
+        {
+            try
+            {
+                //gets the unit and returns the SI type
+                var frmInstance = new UserSettings();
+                frmInstance.Show();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                throw;
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace ExcelUnitConverter
     {
         public static Dictionary<Tuple<string, string>, double> _cachedConversionFactors = new Dictionary<Tuple<string, string>, double>();
         public static Dictionary<string, UnitDefinition> allUnits = new Dictionary<string, UnitDefinition>();
-        public static Dictionary<string, PreferredUnit> preferredDimensions= new Dictionary<string, PreferredUnit>();
+        public static Dictionary<string, PreferredUnit> preferredDimensions = new Dictionary<string, PreferredUnit>();
 
         public static List<string> baseUnits = new List<string>();
         public static SQLiteConnection unitDatabase;
@@ -221,7 +221,7 @@ namespace ExcelUnitConverter
             updateFactorBasedOnParts();
         }
 
-        private void DictAddOrCreate(Dictionary<string, int> dict, string key, int value)
+        public void DictAddOrCreate(Dictionary<string, int> dict, string key, int value)
         {
             if (dict.ContainsKey(key))
             {
@@ -313,7 +313,7 @@ namespace ExcelUnitConverter
             return Tuple.Create(unitName, unitExponent);
         }
 
-        private void updateFactorBasedOnParts()
+        public void updateFactorBasedOnParts()
         {
             foreach (var origUnit in partsOrig.Keys)
             {
@@ -326,6 +326,59 @@ namespace ExcelUnitConverter
                     this.factor = this.factor * Math.Pow(GetFactorToSis(origUnit), partsOrig[origUnit]);
                 }
             }
+        }
+    }
+
+    public static class UnitOperations
+    {
+        public static UnitConversion CombineUnits(UnitCombineOperation op, UnitConversion leftUnit, UnitConversion rightUnit)
+        {
+            //add and subtract just need to check for the same units and then return one of them
+            switch (op)
+            {
+                case UnitCombineOperation.Add:
+                case UnitCombineOperation.Subtract:
+                    if (leftUnit.AreSameUnits(rightUnit))
+                    {
+                        return leftUnit;
+                    }
+                    break;
+                case UnitCombineOperation.Multiply:
+                    //create new conversion
+                    var newUnit = new UnitConversion();
+
+                    //iterate through the leftUnit and copy over the partsOrig
+                    foreach (var origPart in leftUnit.partsOrig)
+                    {
+                        newUnit.partsOrig.Add(origPart.Key, origPart.Value);
+                    }
+
+                    //iterate through the rightUnit and add/create the partsOrig
+                    foreach (var origPart in rightUnit.partsOrig)
+                    {
+                        newUnit.DictAddOrCreate(newUnit.partsOrig, origPart.Key, origPart.Value);
+                    }
+
+                    //do the math to get the new SI factor from partsOrig
+
+                    newUnit.updateFactorBasedOnParts();
+
+                    return newUnit;
+
+                case UnitCombineOperation.Divide:
+                    break;
+                default:
+                    break;
+            }
+
+            return null;
+
+            //multiply and divide need to do actual math to combine and get a factor to SI
+        }
+
+        public enum UnitCombineOperation
+        {
+            None, Add, Subtract, Multiply, Divide
         }
     }
 }

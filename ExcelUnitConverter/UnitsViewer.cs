@@ -108,7 +108,7 @@ namespace ExcelUnitConverter
 
         private void RefreshDataGridDimensions()
         {
-            dataGridView1.DataSource = UnitConversion.preferredDimensions.Values.ToList();
+            dataGridDimensions.DataSource = UnitConversion.preferredDimensions.Values.ToList();
         }
 
         private void txtFactor_TextChanged(object sender, EventArgs e)
@@ -153,7 +153,7 @@ namespace ExcelUnitConverter
             UnitConversion.unitDatabase.Insert(uPref);
 
             //refresh the datagridview down below
-            RefreshDataGridUnits();
+            RefreshDataGridDimensions();
         }
     }
 }
