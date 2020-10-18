@@ -10,8 +10,8 @@ This add-in was created at a time when I was doing a significant amount of engin
 
 Form to display and edit current unit database.
 
-![Unit form](/ExcelUnitConverter\docs\images/03-units.png)
+![Unit form](/ExcelUnitConverter/docs/images/03-units.png)
 
 Form to change the database location
 
-![Settings form](/ExcelUnitConverter\docs\images/03-prefs.png)
+![Settings form](/ExcelUnitConverter/docs/images/03-prefs.png)
